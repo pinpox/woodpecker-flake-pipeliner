@@ -62,9 +62,9 @@ func main() {
 	// Serve handlers
 	pipelineHandler := http.HandlerFunc(servePipeline)
 	if skipSignatureVerify {
-		http.Handle("/ciconfig", pipelineHandler)
+		http.Handle("/", pipelineHandler)
 	} else {
-		http.Handle("/ciconfig", verifySignature(pipelineHandler))
+		http.Handle("/", verifySignature(pipelineHandler))
 	}
 
 	log.Printf("Starting Woodpecker Config Server at: %s\n", envHost)
