@@ -160,6 +160,11 @@ func verifySignature(next http.Handler) http.Handler {
 		keyID, err := verifier.Verify(r)
 		if err != nil {
 			log.Printf("config: invalid or missing signature in http.Request %s", err)
+
+			if envDebug {
+				log.Println("The following headers where received", r.Header)
+			}
+
 			http.Error(w, "Invalid or Missing Signature", http.StatusBadRequest)
 			return
 		}
