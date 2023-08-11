@@ -119,6 +119,8 @@
               serviceConfig = {
                 # LoadCredential = [ "discord_token:${cfg.discordTokenFile}" ];
 
+                # WorkingDirectory = "/var/lib/flake-pipeliner";
+
                 User = "flake-pipeliner";
                 # Group = "flake-pipeliner";
                 DynamicUser = true;

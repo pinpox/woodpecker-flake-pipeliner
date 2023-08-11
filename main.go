@@ -180,6 +180,7 @@ func getPipelineFromFlake(req incoming) ([]byte, error) {
 	var outb, errb bytes.Buffer
 	cmd.Stdout = &outb
 	cmd.Stderr = &errb
+	cmd.Dir = "/tmp";
 	err := cmd.Run()
 	if err != nil {
 		log.Println(errb.String())
