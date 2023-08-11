@@ -19,13 +19,15 @@ The code is based on the official Woodpecker
 The service is configured via environment variables and will look for a `.env`
 file at startup. The following options are available:
 
-| Variable                       | Example               | Description                            |
-|--------------------------------|-----------------------|----------------------------------------|
-| CONFIG_SERVICE_PUBLIC_KEY_FILE | `/path/to/key.txt`    | Path to key for signature verification |
-| CONFIG_SERVICE_HOST            | `localhost:8080`      | Where the service should listen        |
-| CONFIG_SERVICE_OVERRIDE_FILTER | `test-*`              | Regex to filter repos                  |
-| CONFIG_SERVICE_SKIP_VERIFY     | `true`                | Don't verify the signature.            |
-| CONFIG_SERVICE_FLAKE_OUTPUT    | `woodpecker-pipeline` | flake output containing the pipeline   |
+| Variable                  | Example               | Description                              |
+|---------------------------|-----------------------|------------------------------------------|
+| PIPELINER_PUBLIC_KEY_FILE | `/path/to/key.txt`    | Path to key for signature verification   |
+| PIPELINER_HOST            | `localhost:8080`      | Where the service should listen          |
+| PIPELINER_OVERRIDE_FILTER | `test-*`              | Regex to filter repos                    |
+| PIPELINER_SKIP_VERIFY     | `true`                | Don't verify the signature.              |
+| PIPELINER_FLAKE_OUTPUT    | `woodpecker-pipeline` | flake output containing the pipeline     |
+| PIPELINER_PRECMDS         | `git -v`              | commands to run before building pipeline |
+| PIPELINER_DEBUG           | `true`                | Debug mode, more output                  |
 
 The public key used for verification can be retrieved from the woodpecker server
 at `http(s)://your-woodpecker-server/api/signature/public-key`. An example
@@ -44,11 +46,13 @@ imports = [
 services.flake-pipeliner = {
   enable = true;
   environment = {
-    CONFIG_SERVICE_PUBLIC_KEY_FILE = "${./woodpecker-public-key}";
-    CONFIG_SERVICE_HOST = "localhost:8585";
-    CONFIG_SERVICE_OVERRIDE_FILTER = "test-*";
-    CONFIG_SERVICE_SKIP_VERIFY = "false";
-    CONFIG_SERVICE_FLAKE_OUTPUT = "woodpecker-pipeline";
+    PIPELINER_PUBLIC_KEY_FILE = "${./woodpecker-public-key}";
+    PIPELINER_HOST = "localhost:8585";
+    PIPELINER_OVERRIDE_FILTER = "test-*";
+    PIPELINER_SKIP_VERIFY = "false";
+    PIPELINER_FLAKE_OUTPUT = "woodpecker-pipeline";
+    PIPELINER_PRECMDS = "git -v";
+    PIPELINER_DEBUG = "false";
     NIX_REMOTE = "daemon";
     PAGER = "cat";
   };
@@ -81,5 +85,5 @@ curl -X POST -H "Content-Type: application/json" -d @test-request.json 127.0.0.1
 ```
 
 To test, that the server is `POST`ing correctly it can be helpful to set
-`WOODPECKER_CONFIG_SERVICE_ENDPOINT` to a request bin like
+`WOODPECKER_PIPELINER_ENDPOINT` to a request bin like
 https://public.requestbin.com and analyze the submitted JSON

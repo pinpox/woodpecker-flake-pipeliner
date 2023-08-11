@@ -33,11 +33,13 @@ type incoming struct {
 }
 
 var (
-	envFlakeOutput      string
-	envFilterRegex      string
-	envHost             string
-	envPubKeyPath       string
-	skipSignatureVerify bool
+	envFlakeOutput         string
+	envFilterRegex         string
+	envHost                string
+	envPubKeyPath          string
+	envPreCmds             string
+	envSkipSignatureVerify bool
+	envDebug               bool
 )
 
 func main() {
@@ -49,19 +51,21 @@ func main() {
 	}
 
 	// Key in format of the one fetched from http(s)://your-woodpecker-server/api/signature/public-key
-	envPubKeyPath = os.Getenv("CONFIG_SERVICE_PUBLIC_KEY_FILE")
-	envHost = os.Getenv("CONFIG_SERVICE_HOST")
-	envFilterRegex = os.Getenv("CONFIG_SERVICE_OVERRIDE_FILTER")
-	envFlakeOutput = os.Getenv("CONFIG_SERVICE_FLAKE_OUTPUT")
-	skipSignatureVerify, _ = strconv.ParseBool(os.Getenv("CONFIG_SERVICE_SKIP_VERIFY"))
+	envPubKeyPath = os.Getenv("PIPELINER_PUBLIC_KEY_FILE")
+	envHost = os.Getenv("PIPELINER_HOST")
+	envFilterRegex = os.Getenv("PIPELINER_OVERRIDE_FILTER")
+	envFlakeOutput = os.Getenv("PIPELINER_FLAKE_OUTPUT")
+	envPreCmds = os.Getenv("PIPELINER_PRECMDS")
+	envSkipSignatureVerify, _ = strconv.ParseBool(os.Getenv("PIPELINER_SKIP_VERIFY"))
+	envDebug, _ = strconv.ParseBool(os.Getenv("PIPELINER_DEBUG"))
 
 	if envPubKeyPath == "" && envHost == "" {
-		log.Fatal("Please make sure CONFIG_SERVICE_HOST and CONFIG_SERVICE_PUBLIC_KEY_FILE are set properly")
+		log.Fatal("Please make sure PIPELINER_HOST and PIPELINER_PUBLIC_KEY_FILE are set properly")
 	}
 
 	// Serve handlers
 	pipelineHandler := http.HandlerFunc(servePipeline)
-	if skipSignatureVerify {
+	if envSkipSignatureVerify {
 		http.Handle("/", pipelineHandler)
 	} else {
 		http.Handle("/", verifySignature(pipelineHandler))
@@ -87,8 +91,9 @@ func servePipeline(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "can't read body", http.StatusBadRequest)
 		return
 	}
-
-	log.Println(string(body))
+	if envDebug {
+		log.Println(string(body))
+	}
 
 	// Parse JSON
 	err = json.Unmarshal(body, &req)
@@ -114,10 +119,9 @@ func servePipeline(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Pipeline was build. Try to write it back
 		w.WriteHeader(http.StatusOK)
-		log.Println("Returning Pipeline:")
-		log.Println("------")
-		log.Println("\n", string(flakePipeline))
-		log.Println("------")
+		if envDebug {
+			log.Println("Returning Pipeline:\n", string(flakePipeline))
+		}
 		_, err = w.Write(flakePipeline)
 		if err != nil {
 			log.Printf("Failed to write the pipeline: %s", err)
@@ -179,7 +183,9 @@ func runShellCmds(commands []string) ([]byte, error) {
 	}
 	script = strings.TrimSpace(script)
 
-	log.Println("Script: ", script)
+	if envDebug {
+		log.Println("Running script:", script)
+	}
 
 	cmd := exec.Command("bash", "-c", script)
 	cmd.Env = env
@@ -204,13 +210,11 @@ func getPipelineFromFlake(req incoming) ([]byte, error) {
 	var err error
 
 	log.Println("Running Pre-commands")
-    commands := strings.Split(os.Getenv("PRE_CMD"), "\n")
+	commands := strings.Split(envPreCmds, "\n")
 
 	if output, err = runShellCmds(commands); err != nil {
 		return nil, err
 	}
-	log.Println("Pre-Commands output:\n", string(output))
-
 	// Construct flake url and build
 	buildURL := fmt.Sprintf(
 		"'git+%s?ref=%s&rev=%s#%s'",
@@ -220,7 +224,10 @@ func getPipelineFromFlake(req incoming) ([]byte, error) {
 		envFlakeOutput,
 	)
 
-	log.Println("Constructed flake build URL:", buildURL)
+	if envDebug {
+		log.Println("Pre-Commands output:\n", string(output))
+		log.Println("Constructed flake build URL:", buildURL)
+	}
 
 	// Run
 	// TODO Might be cleaner to set the working directory to something valid in
@@ -232,7 +239,10 @@ func getPipelineFromFlake(req incoming) ([]byte, error) {
 
 	// Trim whitespace and newlines
 	nixStorePath := strings.TrimSpace(string(output))
-	log.Println("Got nix-store path:", nixStorePath)
+
+	if envDebug {
+		log.Println("Got nix-store path:", nixStorePath)
+	}
 
 	b, err := os.ReadFile(nixStorePath)
 	if err != nil {
