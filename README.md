@@ -31,6 +31,29 @@ The public key used for verification can be retrieved from the woodpecker server
 at `http(s)://your-woodpecker-server/api/signature/public-key`. An example
 `.env.sample` is included, which can be copied to `.env` as a starting point.
 
+### NixOS Service
+
+There is also a Nix module in the flake to allow easy development on NixOS. An
+example configuration could look like this after adding it to your flake inputs:
+
+```nix
+imports = [
+  flake-pipeliner.nixosModules.flake-pipeliner
+];
+
+services.flake-pipeliner = {
+  enable = true;
+  environment = {
+    CONFIG_SERVICE_PUBLIC_KEY_FILE = "${./woodpecker-public-key}";
+    CONFIG_SERVICE_HOST = "localhost:8585";
+    CONFIG_SERVICE_OVERRIDE_FILTER = "test-*";
+    CONFIG_SERVICE_SKIP_VERIFY = "false";
+    CONFIG_SERVICE_FLAKE_OUTPUT = "woodpecker-pipeline";
+    NIX_REMOTE = "daemon";
+    PAGER = "cat";
+  };
+};
+```
 
 ## Woodpecker CI Server
 
