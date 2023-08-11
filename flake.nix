@@ -120,12 +120,10 @@
                 # LoadCredential = [ "discord_token:${cfg.discordTokenFile}" ];
 
                 User = "flake-pipeliner";
-                Group = "flake-pipeliner";
+                # Group = "flake-pipeliner";
                 DynamicUser = true;
                 SupplementaryGroups = cfg.extraGroups;
-                # EnvironmentFile = agentCfg.environmentFile;
                 ExecStart = lib.getExe cfg.package;
-                # ExecStart = "${cfg.package}/bin/flake-pipeliner";
                 Restart = "on-failure";
                 RestartSec = 15;
                 CapabilityBoundingSet = "";
