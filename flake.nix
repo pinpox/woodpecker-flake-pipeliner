@@ -62,6 +62,15 @@
 
             enable = lib.mkEnableOption (lib.mdDoc description);
 
+            extraGroups = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              example = [ "podman" ];
+              description = lib.mdDoc ''
+                Additional groups for the systemd service.
+              '';
+            };
+
             environment = lib.mkOption {
               default = { };
               type = lib.types.attrsOf lib.types.str;
