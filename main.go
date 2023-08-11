@@ -88,6 +88,8 @@ func servePipeline(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println(string(body))
+
 	// Parse JSON
 	err = json.Unmarshal(body, &req)
 	if err != nil {
@@ -112,6 +114,10 @@ func servePipeline(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Pipeline was build. Try to write it back
 		w.WriteHeader(http.StatusOK)
+		log.Println("Returning Pipeline:")
+		log.Println("------")
+		log.Println("\n", string(flakePipeline))
+		log.Println("------")
 		_, err = w.Write(flakePipeline)
 		if err != nil {
 			log.Printf("Failed to write the pipeline: %s", err)
