@@ -208,7 +208,7 @@ func getPipelineFromFlake(req incoming) ([]byte, error) {
 	// Construct flake url and build
 	buildURL := fmt.Sprintf(
 		"'git+%s?ref=%s&rev=%s#%s'",
-		req.Build.Link,
+		req.Repo.Link,
 		req.Build.Ref,
 		req.Build.Commit,
 		envFlakeOutput,
