@@ -58,6 +58,8 @@
 
           options.services.flake-pipeliner = {
 
+            package = lib.mkPackageOptionMD pkgs "flake-pipeliner" { };
+
             enable = lib.mkEnableOption (lib.mdDoc description);
 
             environment = lib.mkOption {
