@@ -1,4 +1,4 @@
-module github.com/woodpecker-ci/example-config-service
+module github.com/pinpox/woodpecker-flake-pipeliner
 
 go 1.17
 

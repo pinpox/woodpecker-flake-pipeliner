@@ -37,6 +37,7 @@
               description = "Woodpecker CI external configuration service for Nix Flakes";
               homepage = "https://github.com/pinpox/woodpecker-flake-pipeliner";
               license = licenses.gpl3;
+              mainProgram = "flake-pipeliner";
               maintainers = with maintainers; [ pinpox ];
             };
           };
