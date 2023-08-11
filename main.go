@@ -45,7 +45,7 @@ func main() {
 	// Load and check configuration
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		log.Printf("No loadable .env file found, you will have to provide configuration via the environment: %v", err)
 	}
 
 	// Key in format of the one fetched from http(s)://your-woodpecker-server/api/signature/public-key
