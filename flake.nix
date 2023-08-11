@@ -99,7 +99,9 @@
             # Service
             systemd.services.flake-pipeliner = {
 
-              inherit (cfg) environment;
+              environment = cfg.environment // {
+                HOME = "/run/flake-pipeliner";
+              };
 
               path = with pkgs; [
                 bash
@@ -116,8 +118,13 @@
               after = [ "network-online.target" ];
               wants = [ "network-online.target" ];
 
+
+
+
               serviceConfig = {
-                # LoadCredential = [ "discord_token:${cfg.discordTokenFile}" ];
+
+                RuntimeDirectory = "flake-pipeliner";
+                # RuntimeDirectoryMode = "0700";
 
                 # WorkingDirectory = "/var/lib/flake-pipeliner";
 
