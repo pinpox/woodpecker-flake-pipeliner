@@ -1,6 +1,6 @@
 # Woodpecker CI Configuration Service for Nix Flakes
 
-This service dynamically generates pipelines for [Woodpecker CI](TODO) from
+This service dynamically generates pipelines for [Woodpecker CI](https://woodpecker-ci.org/) from
 Nix flakes. This allows to omit `.woodpecker.yml` files for repositories
 containing a `flake.nix` file. The pipeline will the be read form a dedicated
 flake output.
