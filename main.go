@@ -164,10 +164,50 @@ func verifySignature(next http.Handler) http.Handler {
 	})
 }
 
+func runShellCmds(commands []string) ([]byte, error) {
+
+	env := os.Environ()
+	script := ""
+	for _, cmd := range commands {
+		script += fmt.Sprintf("%s\n", cmd)
+	}
+	script = strings.TrimSpace(script)
+
+	log.Println("Script: ", script)
+
+	cmd := exec.Command("bash", "-c", script)
+	cmd.Env = env
+
+	var outb, errb bytes.Buffer
+	cmd.Stdout = &outb
+	cmd.Stderr = &errb
+
+	err := cmd.Run()
+	if err != nil {
+		log.Println(errb.String())
+		return nil, err
+	}
+
+	return outb.Bytes(), nil
+
+}
+
 func getPipelineFromFlake(req incoming) ([]byte, error) {
 
+	var output []byte
+	var err error
+
+	log.Println("Running Pre-commands")
+    commands := strings.Split(os.Getenv("PRE_CMD"), "\n")
+
+	if output, err = runShellCmds(commands); err != nil {
+		return nil, err
+	}
+	log.Println("Pre-Commands output:\n", string(output))
+
+	// Construct flake url and build
 	buildURL := fmt.Sprintf(
-		"git+%s?ref=%s&rev=%s#%s",
+		"'git+%s?ref=%s&rev=%s#%s'",
 		req.Build.Link,
 		req.Build.Ref,
 		req.Build.Commit,
@@ -175,20 +215,15 @@ func getPipelineFromFlake(req incoming) ([]byte, error) {
 	)
 
 	log.Println("Constructed flake build URL:", buildURL)
-	cmd := exec.Command("nix", "build", buildURL, "--print-out-paths")
 
-	var outb, errb bytes.Buffer
-	cmd.Stdout = &outb
-	cmd.Stderr = &errb
-	cmd.Dir = "/tmp";
-	err := cmd.Run()
-	if err != nil {
-		log.Println(errb.String())
+	// Run
+	commands = []string{fmt.Sprintf("nix build --print-out-paths %s", buildURL)}
+	if output, err = runShellCmds(commands); err != nil {
 		return nil, err
 	}
 
 	// Trim whitespace and newlines
-	nixStorePath := strings.TrimSpace(outb.String())
+	nixStorePath := strings.TrimSpace(string(output))
 	log.Println("Got nix-store path:", nixStorePath)
 
 	b, err := os.ReadFile(nixStorePath)

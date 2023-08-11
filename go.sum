@@ -1194,8 +1194,6 @@ github.com/vishvananda/netns v0.0.0-20200728191858-db3c7e526aae/go.mod h1:DD4vA1
 github.com/willf/bitset v1.1.11-0.20200630133818-d5bec3311243/go.mod h1:RjeCKbqT1RxIR/KWY6phxZiaY1IyutSBfGjNPySAYV4=
 github.com/willf/bitset v1.1.11/go.mod h1:83CECat5yLh5zVOf4P1ErAgKA5UDvKtgyUABdr3+MjI=
 github.com/woodpecker-ci/expr v0.0.0-20210628233344-164b8b3d0915/go.mod h1:PbzlZ93HrA1cf16OUP1vckAPq57gtF+ccnwZeDkmC9s=
-github.com/woodpecker-ci/woodpecker v0.15.0 h1:p3svFdtoXwmsd7w0/PJwyqfGejk2HaS8f6cC69xRxUE=
-github.com/woodpecker-ci/woodpecker v0.15.0/go.mod h1:gWRKIzkowiQmy8WC/fp5Ktn3QHZc15GtneRuoalysxg=
 github.com/woodpecker-ci/woodpecker v0.15.1 h1:S9RgkDoUQ0tvOL8/yJDDvDxdXUdE+XOdlZf/I6D3SRg=
 github.com/woodpecker-ci/woodpecker v0.15.1/go.mod h1:gWRKIzkowiQmy8WC/fp5Ktn3QHZc15GtneRuoalysxg=
 github.com/xanzy/go-gitlab v0.55.1/go.mod h1:F0QEXwmqiBUxCgJm8fE9S+1veX4XC9Z4cfaAbqwk4YM=
