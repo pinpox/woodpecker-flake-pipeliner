@@ -217,7 +217,9 @@ func getPipelineFromFlake(req incoming) ([]byte, error) {
 	log.Println("Constructed flake build URL:", buildURL)
 
 	// Run
-	commands = []string{fmt.Sprintf("nix build --print-out-paths %s", buildURL)}
+	// TODO Might be cleaner to set the working directory to something valid in
+	// the module and allow nix build to run without --no-link
+	commands = []string{fmt.Sprintf("nix build --no-link --print-out-paths %s", buildURL)}
 	if output, err = runShellCmds(commands); err != nil {
 		return nil, err
 	}
