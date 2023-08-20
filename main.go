@@ -104,6 +104,9 @@ func servePipeline(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//TODO use err := regexp.Compile instead of MustCompile so we don't panic
+	//on broken filters and can print a better error
+
 	// Check if repo matches the filter
 	filter := regexp.MustCompile(envFilterRegex)
 	if !filter.MatchString(req.Repo.Name) {
