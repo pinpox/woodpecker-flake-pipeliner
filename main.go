@@ -92,6 +92,7 @@ func servePipeline(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if envDebug {
+		log.Println("Received the following body for processing:")
 		log.Println(string(body))
 	}
 
@@ -111,20 +112,28 @@ func servePipeline(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if envDebug {
+		log.Println("JSON parsed OK. Building pipeline from request")
+	}
+
 	// Try to get pipeline. Checks are separate here, so that we don't try
 	// to build anything for repos not matching the filter
 	if flakePipeline, err := getPipelineFromFlake(req); err != nil {
 		log.Printf("Failed to create the pipeline: %s", err)
 		w.WriteHeader(http.StatusNoContent)
 	} else {
-		// Pipeline was build. Try to write it back
-		w.WriteHeader(http.StatusOK)
+
 		if envDebug {
 			log.Println("Returning Pipeline:\n", string(flakePipeline))
 		}
-		_, err = w.Write(flakePipeline)
-		if err != nil {
+
+		// Pipeline was build. Try to write it back
+		w.WriteHeader(http.StatusOK)
+
+		if retb, err := w.Write(flakePipeline); err != nil {
 			log.Printf("Failed to write the pipeline: %s", err)
+		} else {
+			log.Printf("%v bytes written", retb)
 		}
 	}
 }
