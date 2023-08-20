@@ -41,13 +41,75 @@
               maintainers = with maintainers; [ pinpox ];
             };
           };
+
+        # Eat our own dogfoot
+        woodpecker-pipeline = with final; writeText "pipeline" (builtins.toJSON {
+          configs = [
+            {
+              name = "Golang";
+              data = (builtins.toJSON {
+                labels.backend = "docker";
+                platform = "linux/arm64";
+                pipeline = [
+                  {
+                    name = "Lint";
+                    image = "golang:latest";
+                    commands = [
+                      "go fmt $(go list ./... | grep -v /vendor/)"
+                      "go vet $(go list ./... | grep -v /vendor/)"
+                    ];
+                  }
+                  {
+                    name = "Test";
+                    image = "golang:latest";
+                    commands = [
+                      "go test -race $(go list ./... | grep -v /vendor/)"
+                    ];
+                  }
+                  {
+                    name = "Build";
+                    image = "golang:latest";
+                    commands = [
+                      "go build"
+                    ];
+                  }
+                ];
+              });
+            }
+            {
+              name = "Build and push Nix package";
+              data = (builtins.toJSON {
+                labels.backend = "local";
+                pipeline = [
+                  {
+                    name = "Setup Attic";
+                    image = "bash";
+                    commands = [
+                      "attic login lounge-rocks https://attic.lounge.rocks $ATTIC_KEY --set-default"
+                    ];
+                    secrets = [ "attic_key" ];
+                  }
+                  {
+                    name = "Build";
+                    image = "bash";
+                    commands = [
+                      "nix build '.#flake-pipeliner'"
+                      "attic push lounge-rocks:lounge-rocks result"
+                    ];
+                  }
+                ];
+              });
+            }
+          ];
+        });
       };
 
       # Package
-      packages = forAllSystems (system: {
-        inherit (nixpkgsFor.${system}) flake-pipeliner;
-        default = self.packages.${system}.flake-pipeliner;
-      });
+      packages = forAllSystems
+        (system: {
+          inherit (nixpkgsFor.${system}) flake-pipeliner woodpecker-pipeline;
+          default = self.packages.${system}.flake-pipeliner;
+        });
 
       # Nixos module
       nixosModules.flake-pipeliner = { pkgs, lib, config, ... }:
