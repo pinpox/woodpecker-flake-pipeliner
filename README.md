@@ -1,5 +1,7 @@
 # Woodpecker CI Configuration Service for Nix Flakes
 
+[![status-badge](https://build.lounge.rocks/api/badges/10/status.svg)](https://build.lounge.rocks/repos/10)
+
 This service dynamically generates pipelines for [Woodpecker CI](https://woodpecker-ci.org/) from
 Nix flakes. This allows to omit `.woodpecker.yml` files for repositories
 containing a `flake.nix` file. The pipeline will the be read form a dedicated
