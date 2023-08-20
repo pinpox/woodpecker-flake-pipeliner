@@ -107,6 +107,7 @@ func servePipeline(w http.ResponseWriter, r *http.Request) {
 	// Check if repo matches the filter
 	filter := regexp.MustCompile(envFilterRegex)
 	if !filter.MatchString(req.Repo.Name) {
+		log.Printf("Repo does not match filter, skipping")
 		w.WriteHeader(http.StatusNoContent) // 204 - use default config
 		// No need to write a response body
 		return
