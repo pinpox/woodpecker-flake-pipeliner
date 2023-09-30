@@ -77,7 +77,7 @@ pushing) and submit the build metadata. The configuration service should reply
 with pipeline steps. It will return `HTTP 204` to tell the server to use
 existing configuration, e.g. when no `flake.nix` is found.
 
-# Toubleshooting and Development
+# Troubleshooting and Development
 
 To test, it can be useful to mock requests to the service with curl. An example
 is in included in `test-request.json` and can be submitted using:
