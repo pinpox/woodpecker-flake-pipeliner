@@ -31,7 +31,7 @@
             pname = "flake-pipeliner";
             version = "v1.0.0";
             src = ./.;
-            vendorSha256 = "sha256-DRxbU/vqbiP1LvMZk11LViSfPNXvTvyT9997yyR/1Us=";
+            vendorHash = "sha256-DRxbU/vqbiP1LvMZk11LViSfPNXvTvyT9997yyR/1Us=";
 
             meta = with lib; {
               description = "Woodpecker CI external configuration service for Nix Flakes";
